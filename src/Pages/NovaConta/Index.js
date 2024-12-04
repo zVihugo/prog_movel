@@ -4,25 +4,23 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-} from 'react-native';
+} from "react-native";
 
-import {useState} from 'react';
+import { useState } from "react";
 
-export function NovaConta({navigation}) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
-
+export function NovaConta({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleCadastro = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setErrorMessage('E-mail parece ser inválido');
-    }else if(repeatPassword !== password){
+      setErrorMessage("E-mail parece ser inválido");
+    } else if (repeatPassword !== password) {
       setErrorMessage("O campo repetir senha difere da senha");
-    }else{
+    } else {
       setErrorMessage("");
       navigation.navigate("Login");
     }
@@ -37,15 +35,14 @@ export function NovaConta({navigation}) {
             style={styles.inputContext}
             placeholder="Digite seu e-mail"
             value={email}
-           
-            onChangeText={text => setEmail(text)}
+            onChangeText={(text) => setEmail(text)}
           />
         </View>
         <View style={styles.inputGroup}>
           <Text style={styles.textContent}>Senha</Text>
           <TextInput
             secureTextEntry={true}
-            onChangeText={text => setPassword(text)}
+            onChangeText={(text) => setPassword(text)}
             style={styles.inputContext}
             value={password}
             placeholder="Digite sua senha"
@@ -56,17 +53,16 @@ export function NovaConta({navigation}) {
           <TextInput
             secureTextEntry={true}
             value={repeatPassword}
-            onChangeText={text => setRepeatPassword(text)}
+            onChangeText={(text) => setRepeatPassword(text)}
             style={styles.inputContext}
             placeholder="Digite sua senha"
           />
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
         </View>
-        {errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        ) : null}
-        <TouchableOpacity
-          style={styles.buttonContent}
-          onPress={handleCadastro}>
+
+        <TouchableOpacity style={styles.buttonContent} onPress={handleCadastro}>
           <Text style={styles.buttonText}>CADASTRAR</Text>
         </TouchableOpacity>
       </View>
@@ -77,98 +73,98 @@ export function NovaConta({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#372775',
-    justifyContent: 'center',
+    backgroundColor: "#372775",
+    justifyContent: "center",
   },
   content: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   title: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 80,
     marginBottom: 50,
   },
   TitleText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 35,
-    paddingLeft: '1%',
-    fontFamily: 'AveriaLibre-Bold',
+    paddingLeft: "1%",
+    fontFamily: "AveriaLibre-Bold",
   },
   inputGroup: {
-    width: '80%',
+    width: "60%",
     marginBottom: 10,
   },
   textContent: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 20,
-    fontFamily: 'AveriaLibre-Regular',
+    fontFamily: "AveriaLibre-Regular",
     marginBottom: 5,
-    textAlign: 'left',
+    textAlign: "left",
   },
   inputContext: {
-    backgroundColor: '#fff',
-    width: '100%',
-    height: 40,
+    backgroundColor: "#fff",
+    width: "100%",
+    height: 35,
     paddingLeft: 10,
-    fontFamily: 'AveriaLibre-Regular',
-    fontSize: 20,
-    color: '#3F92C5',
+    paddingTop: 8,
+    fontFamily: "AveriaLibre-Regular",
+    fontSize: 16,
+    color: "#3F92C5",
   },
   buttonContent: {
-    backgroundColor: '#37BD6D',
-    width: '80%',
-    height: 40,
-    fontFamily: 'AveriaLibre-Regular',
+    backgroundColor: "#37BD6D",
+    width: "60%",
+    height: 30,
+    fontFamily: "AveriaLibre-Regular",
     paddingLeft: 10,
     marginBottom: 10,
-    marginTop: 30,
+    marginTop: 10,
     padding: 8,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'AveriaLibre-Regular',
-    textAlign: 'center',
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: "AveriaLibre-Regular",
+    textAlign: "center",
   },
   buttonHelp: {
     paddingTop: 30,
-    fontFamily: 'AveriaLibre-Regular',
-    alignItems: 'center',
+    fontFamily: "AveriaLibre-Regular",
+    alignItems: "center",
     marginBottom: 20,
     marginTop: 30,
   },
   buttonRegister: {
-    backgroundColor: '#419ED7',
-    width: '80%',
+    backgroundColor: "#419ED7",
+    width: "60%",
     height: 30,
     paddingLeft: 10,
     marginBottom: 10,
     padding: 8,
   },
   helpText: {
-    fontFamily: 'AveriaLibre-Regular',
-    textAlign: 'center',
-    color: '#fff',
+    fontFamily: "AveriaLibre-Regular",
+    textAlign: "center",
+    color: "#fff",
     fontSize: 14,
   },
   buttonChangePassword: {
-    backgroundColor: '#B0CCDE',
-    width: '80%',
+    backgroundColor: "#B0CCDE",
+    width: "60%",
     height: 30,
     paddingLeft: 10,
     marginBottom: 10,
     padding: 8,
   },
   errorText: {
-    color: "#FF4D4D",
+    color: '#FF4D4D',
     fontSize: 14,
-    fontFamily: "AveriaLibre-Regular",
-    alignSelf: "flex-start",
-    paddingLeft: 40,
-    marginTop: 1,
+    fontFamily: 'AveriaLibre-Regular',
+    marginTop: 5, 
+    alignSelf: 'flex-start',
   },
 });

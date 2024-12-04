@@ -34,8 +34,9 @@ export function RecuperarSenha({navigation}) {
             style={styles.inputContext}
             placeholder="Digite seu e-mail"
           />
+          {message ? <Text style={styles.errorText}>{message}</Text> : null}
         </View>
-        {message ? <Text style={styles.errorText}>{message}</Text> : null}
+        
         <TouchableOpacity
           style={styles.buttonContent}
           onPress={handleRecuperarSenha}>
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     fontFamily: 'AveriaLibre-Bold',
   },
   inputGroup: {
-    width: '80%',
+    width: '60%',
     marginBottom: 10,
   },
   textContent: {
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     backgroundColor: '#37BD6D',
-    width: '80%',
+    width: '60%',
     height: 40,
     fontFamily: 'AveriaLibre-Regular',
     paddingLeft: 10,
@@ -106,41 +107,12 @@ const styles = StyleSheet.create({
     fontFamily: 'AveriaLibre-Regular',
     textAlign: 'center',
   },
-  buttonHelp: {
-    paddingTop: 30,
-    fontFamily: 'AveriaLibre-Regular',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 30,
-  },
-  buttonRegister: {
-    backgroundColor: '#419ED7',
-    width: '80%',
-    height: 30,
-    paddingLeft: 10,
-    marginBottom: 10,
-    padding: 8,
-  },
-  helpText: {
-    fontFamily: 'AveriaLibre-Regular',
-    textAlign: 'center',
-    color: '#fff',
-    fontSize: 14,
-  },
-  buttonChangePassword: {
-    backgroundColor: '#B0CCDE',
-    width: '80%',
-    height: 30,
-    paddingLeft: 10,
-    marginBottom: 10,
-    padding: 8,
-  },
+ 
   errorText: {
-    color: "#FF4D4D",
+    color: '#FF4D4D',
     fontSize: 14,
-    fontFamily: "AveriaLibre-Regular",
-    alignSelf: "flex-start",
-    paddingLeft: 40,
-    marginTop: 1,
+    fontFamily: 'AveriaLibre-Regular',
+    marginTop: 5, 
+    alignSelf: 'flex-start',
   },
 });

@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-
+import { useFonts } from 'expo-font';
 import {useState} from 'react';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -13,6 +13,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 export function Login({navigation}) {
   const [email, setEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+
+  const [fontsLoaded] = useFonts({
+    'AveriaLibre-Regular': require('../../../assets/fonts/AveriaLibre-Regular.ttf'),
+    'AveriaLibre-Bold': require('../../../assets/fonts/AveriaLibre-Bold.ttf'),
+ 
+  });
 
   const handlePressNavigateRegister = () => {
     navigation.navigate('NovaConta');
@@ -55,10 +62,11 @@ export function Login({navigation}) {
             secureTextEntry={true}
             placeholder="Digite sua senha"
           />
-        </View>
-        {errorMessage ? (
+          {errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
-        ) : null}
+          ) : null}
+        </View>
+        
         <TouchableOpacity style={styles.buttonContent} onPress={handleLogin}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
@@ -83,32 +91,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#372775',
-    justifyContent: 'center',
+    justifyContent: 'space-between', 
+    paddingVertical: 20,
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
   },
   icon: {
-    marginLeft: '5%',
+    marginLeft: 20,
   },
   title: {
+    
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 80,
-    marginBottom: 50,
+    marginTop: 10, 
   },
   TitleText: {
     color: '#fff',
-    fontSize: 35,
+    fontSize: 34,
     paddingLeft: '1%',
     fontFamily: 'AveriaLibre-Bold',
   },
   inputGroup: {
-    width: '80%',
-    marginBottom: 10,
+    width: '60%',
+    marginBottom: 15,
   },
   textContent: {
     color: '#fff',
@@ -120,63 +128,58 @@ const styles = StyleSheet.create({
   inputContext: {
     backgroundColor: '#fff',
     width: '100%',
-    height: 40,
+    height: 35,
     paddingLeft: 10,
+    paddingTop: 8,
     fontFamily: 'AveriaLibre-Regular',
-    fontSize: 20,
+    fontSize: 16,
     color: '#3F92C5',
+    
   },
   errorText: {
     color: '#FF4D4D',
     fontSize: 14,
     fontFamily: 'AveriaLibre-Regular',
+    marginTop: 5, 
     alignSelf: 'flex-start',
-    paddingLeft: 40,
-    marginTop: 1,
   },
+  
   buttonContent: {
     backgroundColor: '#37BD6D',
-    width: '80%',
-    height: 40,
-    fontFamily: 'AveriaLibre-Regular',
-    paddingLeft: 10,
-    marginBottom: 10,
-    marginTop: 30,
-    padding: 8,
+    width: '60%',
+    height: 30, 
+    justifyContent: 'center',
+    marginTop: 5, 
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'AveriaLibre-Regular',
     textAlign: 'center',
   },
   buttonHelp: {
-    paddingTop: 30,
-    fontFamily: 'AveriaLibre-Regular',
+    marginTop: 20,
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 30,
   },
   buttonRegister: {
     backgroundColor: '#419ED7',
-    width: '80%',
+    width: '60%',
     height: 30,
-    paddingLeft: 10,
+    justifyContent: 'center',
+
     marginBottom: 10,
-    padding: 8,
   },
   helpText: {
     fontFamily: 'AveriaLibre-Regular',
     textAlign: 'center',
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
   },
   buttonChangePassword: {
     backgroundColor: '#B0CCDE',
-    width: '80%',
+    width: '60%',
     height: 30,
-    paddingLeft: 10,
-    marginBottom: 10,
-    padding: 8,
+    justifyContent: 'center',
+
   },
 });
