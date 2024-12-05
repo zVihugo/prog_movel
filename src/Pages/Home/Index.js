@@ -25,6 +25,8 @@ export function Home({navigation}) {
 
   return (
     <View style={styles.container}>
+
+    <ScrollView>
       <View style={styles.inputText}>
         <Icon style={styles.icon} name="search" color={'#8B8B8B'} size={25} />
         <TextInput
@@ -35,9 +37,11 @@ export function Home({navigation}) {
           onChangeText={text => setSearch(text)}
         />
       </View>
+
+      
       <ScrollView horizontal={true}>
         <TouchableOpacity
-          style={{alignItems: 'center', paddingHorizontal: 30}}
+          style={{alignItems: 'center', paddingHorizontal: 10}}
           onPress={goToActionSearch}>
           <Card />
         </TouchableOpacity>
@@ -47,6 +51,8 @@ export function Home({navigation}) {
           <Text style={styles.textButton}>NOVA PESQUISA</Text>
         </TouchableOpacity>
       </View>
+    </ScrollView>
+      
     </View>
   );
 }
@@ -56,17 +62,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#372775',
+    padding: 20
   },
   icon: {
     marginLeft: 15,
   },
   inputText: {
-    marginTop: 25,
+    marginTop: 10,
     alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'row',
     backgroundColor: '#fff',
-    width: '90%',
+    width: '100%',
     height: 45,
+    marginBottom: 15
   },
   search: {
     backgroundColor: '#fff',
@@ -74,16 +83,12 @@ const styles = StyleSheet.create({
     fontFamily: 'AveriaLibre-Regular',
     fontSize: 20,
   },
-  cardButton: {
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
   buttonContainer: {
+    marginTop: 15,
     backgroundColor: '#37BD6D',
     justifyContent: 'center',
-    width: '90%',
+    width: '100%',
     height: 45,
-    marginBottom: 25,
   },
   textButton: {
     textAlign: 'center',
