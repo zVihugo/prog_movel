@@ -9,9 +9,12 @@ import { useFonts } from 'expo-font';
 import {useState} from 'react';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth_mod } from '../../firebase/config';
 
 export function Login({navigation}) {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
 
@@ -35,7 +38,20 @@ export function Login({navigation}) {
       setErrorMessage('E-mail e/ou senha inválidos.');
     } else {
       setErrorMessage('');
-      navigation.navigate('Drawer');
+      signInWithEmailAndPassword(auth_mod, email, password)
+      .then((userLogged) => {
+        console.log("Usuário autenticado com sucesso:  " + JSON.stringify(userLogged));
+        navigation.navigate('Drawer');
+      }).catch((error) => {
+        console.log("Error: " + JSON.stringify(error));
+        if(error.code === 'auth/user-not-found'){
+          setErrorMessage('Usuário não encontrado.');
+        } else if (error.code === 'auth/wrong-password'){
+          setErrorMessage('Senha incorreta.');
+        } else {
+          setErrorMessage('Senha incorreta.');
+        }
+      })
     }
   };
 
@@ -58,6 +74,8 @@ export function Login({navigation}) {
         <View style={styles.inputGroup}>
           <Text style={styles.textContent}>Senha</Text>
           <TextInput
+            value={password}
+            onChangeText={password => setPassword(password)}
             style={styles.inputContext}
             secureTextEntry={true}
             placeholder="Digite sua senha"

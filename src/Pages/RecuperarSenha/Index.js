@@ -7,22 +7,35 @@ import {
 } from 'react-native';
 
 import {useState} from 'react';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import {auth_mod} from '../../firebase/config';
 
 export function RecuperarSenha({navigation}) {
   const [email, setEmail ] = useState('');
   const [message, setErrorMessage] = useState('');
  
-
   const handleRecuperarSenha = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setErrorMessage('E-mail parece ser inválido');
     } else {
       setErrorMessage('');
-    
-      navigation.navigate('Login');
+      sendPasswordResetEmail(auth_mod, email)
+      .then(() => {
+        console.log("E-mail enviado com sucesso!: ");
+        navigation.navigate('Login');
+      }).catch((error) => {
+        console.log("Erro ao enviar e-mail: " + JSON.stringify(error));
+        if(error.code === 'auth/user-not-found'){
+          setErrorMessage('Usuário não encontrado.');
+        } else {
+          setErrorMessage('Erro ao enviar e-mail.');
+        }
+      })
     }
   };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>

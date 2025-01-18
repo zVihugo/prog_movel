@@ -8,6 +8,9 @@ import {
 
 import { useState } from "react";
 
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth_mod } from "../../firebase/config";
+
 export function NovaConta({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +25,19 @@ export function NovaConta({ navigation }) {
       setErrorMessage("O campo repetir senha difere da senha");
     } else {
       setErrorMessage("");
-      navigation.navigate("Login");
+      createUserWithEmailAndPassword(auth_mod, email, password)
+      .then((userCredential) => {
+        console.log("Usuário criado com sucesso: " + userCredential);
+        navigation.navigate("Login");
+      }).catch((error) => {
+        console.log("Erro ao criar usuário: " + JSON.stringify(error));
+        if(error.code === 'auth/email-already-in-use'){
+          setErrorMessage('E-mail já cadastrado.');
+        } else if (error.code === 'auth/weak-password'){
+          setErrorMessage('Senha fraca.');
+        }
+      })
+     
     }
   };
 
