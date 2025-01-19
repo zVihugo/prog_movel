@@ -7,18 +7,21 @@ import {RecuperarSenha} from '../Pages/RecuperarSenha/Index';
 import {Home} from '../Pages/Home/Index';
 import {DrawerNavigator} from '../Pages/DrawerNavigator/Index';
 import {NovaPesquisa} from '../Pages/NovaPesquisa/NovaPesquisa';
-
 import {AcoesPesquisa} from '../Pages/AcoesPesquisa';
 import {ColetaDados} from '../Pages/ColetaDados';
 import { Relatorio } from '../Pages/Relatório/Index';
 import {ModificarPesquisa} from '../Pages/ModificarPesquisa/ModificarPesquisa';
 import { Agradecimento } from '../Pages/Agradecimento';
 
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
+
 const Stack = createStackNavigator();
 
 export function Routes() {
   return (
-    <NavigationContainer>
+   <Provider store={store}>
+     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen
           name="Login"
@@ -153,5 +156,6 @@ export function Routes() {
         
       </Stack.Navigator>
     </NavigationContainer>
+   </Provider>
   );
 }
