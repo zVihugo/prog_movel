@@ -12,6 +12,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import {launchImageLibrary} from 'react-native-image-picker';
+import { useDispatch } from 'react-redux';
+import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
+
 export function ModificarPesquisa({navigation}) {
   const [nome, setNome] = useState('Pesquisa Exemplo');
   const [data, setData] = useState('17/11/2024');
@@ -20,6 +23,7 @@ export function ModificarPesquisa({navigation}) {
   const [nomeError, setNomeError] = useState('');
   const [dataError, setDataError] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
@@ -56,6 +60,7 @@ export function ModificarPesquisa({navigation}) {
 
     if (valid) {
       console.log({nome, data});
+      dispatch(reducerSetNovaPesquisa({ nome: nome, data: data }));
       navigation.navigate('Home');
     }
   };
