@@ -1,13 +1,13 @@
 import {Image, Text, View, StyleSheet} from 'react-native';
 
-export function CardItem({title, date, image}) {
+export function CardItem({nome, date, image}) {
   return (
     <View style={Styles.card}>
       <View style={Styles.imageContainer}>
         <Image source={image} style={Styles.image} />
       </View>
       <View style={Styles.textContainer}>
-        <Text style={Styles.title}>{title}</Text>
+        <Text style={Styles.nome}>{nome}</Text>
         <Text style={Styles.date}>{date}</Text>
       </View>
     </View>
@@ -37,7 +37,7 @@ const Styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  title: {
+  nome: {
     fontSize: 36,
     fontFamily: 'AveriaLibre-Regular',
     color: '#3F92C5',
