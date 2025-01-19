@@ -11,17 +11,18 @@ import {useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth_mod } from '../../firebase/config';
+import { useDispatch } from 'react-redux';
+import { reducerSetEmail } from '../../redux/emailSlice';
 
 export function Login({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const dispatch = useDispatch();
 
   const [fontsLoaded] = useFonts({
     'AveriaLibre-Regular': require('../../../assets/fonts/AveriaLibre-Regular.ttf'),
     'AveriaLibre-Bold': require('../../../assets/fonts/AveriaLibre-Bold.ttf'),
- 
   });
 
   const handlePressNavigateRegister = () => {
@@ -41,6 +42,7 @@ export function Login({navigation}) {
       signInWithEmailAndPassword(auth_mod, email, password)
       .then((userLogged) => {
         console.log("Usuário autenticado com sucesso:  " + JSON.stringify(userLogged));
+        dispatch(reducerSetEmail({ email: email }));
         navigation.navigate('Drawer');
       }).catch((error) => {
         console.log("Error: " + JSON.stringify(error));
