@@ -22,8 +22,6 @@ const CustomMenuIcon = ({navigation}) => (
 
 export function DrawerNavigator({navigation}) {
 
-  
-
   return (
     <Drawer.Navigator
       screenOptions={{
