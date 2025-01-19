@@ -4,10 +4,14 @@ import {
   DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
+import { useSelector } from 'react-redux';
 
 import Icon from 'react-native-vector-icons/Octicons';
 
 export function CustomDrawer(props) {
+
+  const email = useSelector((state) => state.email.email);
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -16,7 +20,7 @@ export function CustomDrawer(props) {
       }}>
       <View style={styles.container}>
         <View style={styles.containerText}>
-          <Text style={styles.userText}>usuario@dominio.com</Text>
+          <Text style={styles.userText}>{email}</Text>
         </View>
         <View style={styles.line} />
         <View style={styles.drawerItem}>
