@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {use, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,8 @@ import {
 import {launchImageLibrary} from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useDispatch } from 'react-redux';
+import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 
 export function NovaPesquisa({navigation}) {
   const [nome, setNome] = useState('');
@@ -19,6 +21,7 @@ export function NovaPesquisa({navigation}) {
   const [imagemUri, setImagemUri] = useState(null);
   const [nomeError, setNomeError] = useState('');
   const [dataError, setDataError] = useState('');
+  const dispatch = useDispatch();
 
   const handleEscolherImagem = () => {
     launchImageLibrary({mediaType: 'photo', selectionLimit: 1}, response => {
@@ -59,6 +62,7 @@ export function NovaPesquisa({navigation}) {
 
      if (valid) {
       console.log({nome, data, imagemUri});
+      dispatch(reducerSetNovaPesquisa({ nome: nome, data: data, imagemUri: imagemUri }));
       navigation.navigate('Drawer');
     }
   };
