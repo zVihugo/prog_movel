@@ -1,4 +1,4 @@
-import React, {use, useState} from 'react';
+import React, { use, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 
-export function NovaPesquisa({navigation}) {
+export function NovaPesquisa({ navigation }) {
   const [nome, setNome] = useState('');
   const [data, setData] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -23,15 +23,37 @@ export function NovaPesquisa({navigation}) {
   const [dataError, setDataError] = useState('');
   const dispatch = useDispatch();
 
+  const convertUriToBase64 = async (uri) => {
+    const resizedImage = await ImageResizer.createResizedImage(
+      uri,
+      700,
+      700,
+      'JPEG',
+      100,
+    );
+
+    const imageUri = await fetch(resizedImage.uri);
+    const imageBlob = await imageUri.blob();
+    console.log(imageBlob);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagemUri(reader.result);
+    };
+    reader.readAsDataURL(imageBlob);
+  };
+
   const handleEscolherImagem = () => {
-    launchImageLibrary({mediaType: 'photo', selectionLimit: 1}, response => {
-      if (response.didCancel) {
-        return;
-      }
-      if (response.assets && response.assets.length > 0) {
-        setImagemUri(response.assets[0].uri);
-      }
-    });
+    launchImageLibrary(
+      { mediaType: 'photo', selectionLimit: 1 },
+      (response) => {
+        if (response.didCancel) {
+          return;
+        }
+        if (response.assets && response.assets.length > 0) {
+          convertUriToBase64(response.assets[0].uri);
+        }
+      },
+    );
   };
 
   const handleDateChange = (event, date) => {
@@ -60,9 +82,15 @@ export function NovaPesquisa({navigation}) {
       setDataError('');
     }
 
-     if (valid) {
-      console.log({nome, data, imagemUri});
-      dispatch(reducerSetNovaPesquisa({ nome: nome, data: data, imagemUri: imagemUri }));
+    if (valid) {
+      console.log({ nome, data, imagemUri });
+      dispatch(
+        reducerSetNovaPesquisa({
+          nome: nome,
+          data: data,
+          imagemUri: imagemUri,
+        }),
+      );
       navigation.navigate('Drawer');
     }
   };
@@ -75,7 +103,7 @@ export function NovaPesquisa({navigation}) {
           <TextInput
             style={styles.inputContext}
             value={nome}
-            onChangeText={text => {
+            onChangeText={(text) => {
               setNome(text);
               setNomeError('');
             }}
@@ -86,14 +114,15 @@ export function NovaPesquisa({navigation}) {
           <Text style={styles.textContent}>Data</Text>
           <View style={styles.dateInputWrapper}>
             <TextInput
-              style={[styles.inputContext, {flex: 1}]}
+              style={[styles.inputContext, { flex: 1 }]}
               value={data}
               editable={false}
               placeholderTextColor="#888"
             />
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
-              style={styles.iconWrapper}>
+              style={styles.iconWrapper}
+            >
               <Icon name="calendar" size={20} color="#939393" />
             </TouchableOpacity>
           </View>
@@ -112,7 +141,8 @@ export function NovaPesquisa({navigation}) {
           <View style={styles.imageButtons}>
             <TouchableOpacity
               style={styles.imageButton}
-              onPress={handleEscolherImagem}>
+              onPress={handleEscolherImagem}
+            >
               <Text style={styles.buttonText}>Câmera/Galeria de imagens</Text>
             </TouchableOpacity>
           </View>
