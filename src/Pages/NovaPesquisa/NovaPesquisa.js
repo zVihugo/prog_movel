@@ -1,17 +1,20 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
+import { collection, addDoc } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
+import { app } from '../../firebase/config';
 
 export function NovaPesquisa({ navigation }) {
   const [nome, setNome] = useState('');
@@ -23,37 +26,39 @@ export function NovaPesquisa({ navigation }) {
   const [dataError, setDataError] = useState('');
   const dispatch = useDispatch();
 
-  const convertUriToBase64 = async (uri) => {
-    const resizedImage = await ImageResizer.createResizedImage(
-      uri,
-      700,
-      700,
-      'JPEG',
-      100,
-    );
+  const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
 
-    const imageUri = await fetch(resizedImage.uri);
-    const imageBlob = await imageUri.blob();
-    console.log(imageBlob);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagemUri(reader.result);
-    };
-    reader.readAsDataURL(imageBlob);
+  const convertUriToBase64 = async (uri) => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      setImagemUri(base64);
+    } catch (error) {
+      console.error('Erro ao converter URI para Base64:', error);
+    }
   };
 
-  const handleEscolherImagem = () => {
-    launchImageLibrary(
-      { mediaType: 'photo', selectionLimit: 1 },
-      (response) => {
-        if (response.didCancel) {
-          return;
-        }
-        if (response.assets && response.assets.length > 0) {
-          convertUriToBase64(response.assets[0].uri);
-        }
-      },
-    );
+  const handleEscolherImagem = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert('Permissão para acessar a galeria é necessária!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      convertUriToBase64(result.assets[0].uri);
+    }
   };
 
   const handleDateChange = (event, date) => {
@@ -84,6 +89,19 @@ export function NovaPesquisa({ navigation }) {
 
     if (valid) {
       console.log({ nome, data, imagemUri });
+      const colecaoPesquisa = collection(db, 'pesquisa');
+      const doc = {
+        nome: nome,
+        data: data,
+        imagemUri: imagemUri,
+      };
+      addDoc(colecaoPesquisa, doc)
+        .then((retorno) => {
+          console.log('Documento adicionado com sucesso: ' + retorno.id);
+        })
+        .catch((error) => {
+          console.error('Erro ao adicionar documento: ' + error);
+        });
       dispatch(
         reducerSetNovaPesquisa({
           nome: nome,
