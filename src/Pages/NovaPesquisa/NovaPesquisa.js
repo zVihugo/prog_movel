@@ -14,7 +14,8 @@ import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { collection, addDoc } from 'firebase/firestore';
 import { initializeFirestore } from 'firebase/firestore';
-import { app } from '../../firebase/config';
+import { auth_mod } from '../../firebase/config';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 export function NovaPesquisa({ navigation }) {
   const [nome, setNome] = useState('');
@@ -26,18 +27,25 @@ export function NovaPesquisa({ navigation }) {
   const [dataError, setDataError] = useState('');
   const dispatch = useDispatch();
 
-  const db = initializeFirestore(app, {
+  const db = initializeFirestore(auth_mod, {
     experimentalForceLongPolling: true,
   });
 
   const convertUriToBase64 = async (uri) => {
     try {
-      const base64 = await FileSystem.readAsStringAsync(uri, {
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 500 } }],
+        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG },
+      );
+
+      const base64 = await FileSystem.readAsStringAsync(manipulatedImage.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+
       setImagemUri(base64);
     } catch (error) {
-      console.error('Erro ao converter URI para Base64:', error);
+      console.error('Erro ao manipular e converter a imagem:', error);
     }
   };
 
@@ -89,7 +97,7 @@ export function NovaPesquisa({ navigation }) {
 
     if (valid) {
       console.log({ nome, data, imagemUri });
-      const colecaoPesquisa = collection(db, 'pesquisa');
+      const colecaoPesquisa = collection(db, 'pesquisas');
       const doc = {
         nome: nome,
         data: data,
@@ -98,17 +106,18 @@ export function NovaPesquisa({ navigation }) {
       addDoc(colecaoPesquisa, doc)
         .then((retorno) => {
           console.log('Documento adicionado com sucesso: ' + retorno.id);
+          dispatch(
+            reducerSetNovaPesquisa({
+              nome: nome,
+              data: data,
+              imagemUri: imagemUri,
+            }),
+          );
         })
         .catch((error) => {
           console.error('Erro ao adicionar documento: ' + error);
         });
-      dispatch(
-        reducerSetNovaPesquisa({
-          nome: nome,
-          data: data,
-          imagemUri: imagemUri,
-        }),
-      );
+
       navigation.navigate('Drawer');
     }
   };

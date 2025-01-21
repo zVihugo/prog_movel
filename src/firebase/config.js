@@ -14,4 +14,4 @@ const app = initializeApp(firebaseConfig);
 
 const auth_mod = getAuth(app);
 
-export { auth_mod, app };
+export { auth_mod };
