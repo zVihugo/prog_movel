@@ -1,10 +1,13 @@
-import {Image, Text, View, StyleSheet} from 'react-native';
+import { Image, Text, View, StyleSheet } from 'react-native';
 
-export function CardItem({nome, date, image}) {
+export function CardItem({ nome, date, image }) {
   return (
     <View style={Styles.card}>
       <View style={Styles.imageContainer}>
-        <Image source={image} style={Styles.image} />
+        <Image 
+          source={typeof image === 'string' ? { uri: `data:image/jpeg;base64,${image}` } : image} 
+          style={Styles.image} 
+        />
       </View>
       <View style={Styles.textContainer}>
         <Text style={Styles.nome}>{nome}</Text>
@@ -32,6 +35,10 @@ const Styles = StyleSheet.create({
     marginTop: 15,
   },
   image: {
+    width: 100, 
+    height: 100,
+    borderRadius: 10,
+    resizeMode: 'cover', 
   },
   textContainer: {
     flex: 1,
