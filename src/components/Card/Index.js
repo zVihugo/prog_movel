@@ -1,31 +1,53 @@
-import {View, StyleSheet} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { CardItem } from '../CardItem/Index';
-
-import Computer from '../../assets/images/Computer.png';
-import People from '../../assets/images/People.png';
-import Person from '../../assets/images/Person.png';
-import { useSelector } from 'react-redux';
+import { initializeFirestore, collection, getDocs } from 'firebase/firestore';
+import { app } from '../../firebase/config';
 
 export function Card() {
-  const nome = useSelector((state) => state.novaPesquisa.nome);
-  const date = useSelector((state) => state.novaPesquisa.data);
-  const imagemUri = useSelector((state) => state.novaPesquisa.imagemUri);
+  const [pesquisas, setPesquisas] = useState([]);
+
+  useEffect(() => {
+    const fetchPesquisas = async () => {
+      try {
+        const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+        const querySnapshot = await getDocs(collection(db, 'pesquisas'));
+        const pesquisasList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPesquisas(pesquisasList);
+      } catch (error) {
+        console.error('Erro ao buscar as pesquisas:', error);
+      }
+    };
+
+    fetchPesquisas();
+  }, []);
+
   return (
-    <View style={Styles.card}>
-      <CardItem nome="SECOMP 2023" date="10/10/2023" image={Computer} />
-      <CardItem nome="UBUNTU 2022" date="05/06/2022" image={People} />
-      <CardItem nome="MENINAS CPU" date="01/04/2022" image={Person} />
-    </View>
+    <ScrollView contentContainerStyle={styles.card}>
+      {pesquisas.map((pesquisa) => (
+        <CardItem
+          key={pesquisa.id}
+          nome={pesquisa.nome}
+          date={pesquisa.data}
+          image={{ uri: `data:image/jpeg;base64,${pesquisa.imagemUri}` }}
+        />
+      ))}
+    </ScrollView>
   );
 }
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   card: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 5,
+    flexWrap: 'wrap',
+    gap: 10,
     width: '90%',
+    padding: 10,
   },
 });
