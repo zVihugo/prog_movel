@@ -14,8 +14,8 @@ import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { collection, addDoc } from 'firebase/firestore';
 import { initializeFirestore } from 'firebase/firestore';
-import { auth_mod } from '../../firebase/config';
-import * as ImageManipulator from 'expo-image-manipulator';
+import { auth_mod, app } from '../../firebase/config';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export function NovaPesquisa({ navigation }) {
   const [nome, setNome] = useState('');
@@ -27,16 +27,16 @@ export function NovaPesquisa({ navigation }) {
   const [dataError, setDataError] = useState('');
   const dispatch = useDispatch();
 
-  const db = initializeFirestore(auth_mod, {
+  const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
   });
 
   const convertUriToBase64 = async (uri) => {
     try {
-      const manipulatedImage = await ImageManipulator.manipulateAsync(
+      const manipulatedImage = await manipulateAsync(
         uri,
-        [{ resize: { width: 500 } }],
-        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG },
+        [{ resize: { width: 150 } }],
+        { compress: 0.1, format: SaveFormat.JPEG },
       );
 
       const base64 = await FileSystem.readAsStringAsync(manipulatedImage.uri, {
