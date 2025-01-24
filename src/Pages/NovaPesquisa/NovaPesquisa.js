@@ -51,7 +51,6 @@ export function NovaPesquisa({ navigation }) {
   };
 
   const handleEscolherImagem = async () => {
-    // Adiciona seletor de ação (câmera ou galeria)
     Alert.alert('Selecionar Imagem', 'Escolha a fonte da imagem:', [
       {
         text: 'Câmera',

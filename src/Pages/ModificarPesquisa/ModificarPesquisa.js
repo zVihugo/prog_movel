@@ -11,7 +11,6 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
@@ -55,7 +54,6 @@ export function ModificarPesquisa({ navigation }) {
     }
   };
   const handleEscolherImagem = async () => {
-    // Adiciona seletor de ação (câmera ou galeria)
     Alert.alert('Selecionar Imagem', 'Escolha a fonte da imagem:', [
       {
         text: 'Câmera',
