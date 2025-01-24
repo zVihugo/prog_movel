@@ -1,23 +1,27 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
-  Platform,
+  Alert,
   Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
-export function ModificarPesquisa({navigation}) {
+export function ModificarPesquisa({ navigation }) {
   const [nome, setNome] = useState('Pesquisa Exemplo');
   const [data, setData] = useState('17/11/2024');
+  const [imagemUri, setImagemUri] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [nomeError, setNomeError] = useState('');
@@ -33,13 +37,72 @@ export function ModificarPesquisa({navigation}) {
       setDataError('');
     }
   };
-  const handleEscolherImagem = () => {
-    launchImageLibrary({mediaType: 'photo', selectionLimit: 1}, response => {
-      if (response.didCancel) return;
-      if (response.assets && response.assets.length > 0) {
-        setImagemCarregada(true);
-      }
-    });
+  const convertUriToBase64 = async (uri) => {
+    try {
+      const manipulatedImage = await manipulateAsync(
+        uri,
+        [{ resize: { width: 150 } }],
+        { compress: 0.1, format: SaveFormat.JPEG },
+      );
+
+      const base64 = await FileSystem.readAsStringAsync(manipulatedImage.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      setImagemUri(base64);
+    } catch (error) {
+      console.error('Erro ao manipular e converter a imagem:', error);
+    }
+  };
+  const handleEscolherImagem = async () => {
+    // Adiciona seletor de ação (câmera ou galeria)
+    Alert.alert('Selecionar Imagem', 'Escolha a fonte da imagem:', [
+      {
+        text: 'Câmera',
+        onPress: async () => {
+          const cameraPermission =
+            await ImagePicker.requestCameraPermissionsAsync();
+          if (!cameraPermission.granted) {
+            alert('Permissão para acessar a câmera é necessária!');
+            return;
+          }
+
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            convertUriToBase64(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Galeria',
+        onPress: async () => {
+          const galleryPermission =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!galleryPermission.granted) {
+            alert('Permissão para acessar a galeria é necessária!');
+            return;
+          }
+
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.Images,
+            allowsEditing: true,
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            convertUriToBase64(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
   };
   const handleSalvar = () => {
     let valid = true;
@@ -59,7 +122,7 @@ export function ModificarPesquisa({navigation}) {
     }
 
     if (valid) {
-      console.log({nome, data});
+      console.log({ nome, data });
       dispatch(reducerSetNovaPesquisa({ nome: nome, data: data }));
       navigation.navigate('Home');
     }
@@ -79,7 +142,7 @@ export function ModificarPesquisa({navigation}) {
           <TextInput
             style={styles.inputContext}
             value={nome}
-            onChangeText={text => {
+            onChangeText={(text) => {
               setNome(text);
               setNomeError('');
             }}
@@ -90,14 +153,15 @@ export function ModificarPesquisa({navigation}) {
           <Text style={styles.textContent}>Data</Text>
           <View style={styles.dateInputWrapper}>
             <TextInput
-              style={[styles.inputContext, {flex: 1}]}
+              style={[styles.inputContext, { flex: 1 }]}
               value={data}
               editable={false}
               placeholderTextColor="#888"
             />
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
-              style={styles.iconWrapper}>
+              style={styles.iconWrapper}
+            >
               <Icon name="calendar" size={20} color="#939393" />
             </TouchableOpacity>
           </View>
@@ -115,7 +179,8 @@ export function ModificarPesquisa({navigation}) {
           <Text style={styles.textContent}>Imagem</Text>
           <TouchableOpacity
             onPress={handleEscolherImagem}
-            style={styles.iconContainer}>
+            style={styles.iconContainer}
+          >
             <Icon2 name={'party-popper'} size={50} color={'#C60EB3'} />
           </TouchableOpacity>
         </View>
@@ -126,17 +191,19 @@ export function ModificarPesquisa({navigation}) {
       <View style={styles.deleteGroup}>
         <TouchableOpacity
           style={styles.trashIcon}
-          onPress={() => setModalVisible(true)}>
+          onPress={() => setModalVisible(true)}
+        >
           <Icon name="trash" size={25} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.deleteText}>Apagar</Text>
       </View>
-   
+
       <Modal
         visible={modalVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
@@ -145,12 +212,14 @@ export function ModificarPesquisa({navigation}) {
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleApagar}>
+                onPress={handleApagar}
+              >
                 <Text style={styles.modalButtonText}>SIM</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}>
+                onPress={() => setModalVisible(false)}
+              >
                 <Text style={styles.modalButtonText}>CANCELAR</Text>
               </TouchableOpacity>
             </View>

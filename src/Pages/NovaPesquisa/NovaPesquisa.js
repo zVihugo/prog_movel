@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
@@ -50,23 +51,54 @@ export function NovaPesquisa({ navigation }) {
   };
 
   const handleEscolherImagem = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // Adiciona seletor de ação (câmera ou galeria)
+    Alert.alert('Selecionar Imagem', 'Escolha a fonte da imagem:', [
+      {
+        text: 'Câmera',
+        onPress: async () => {
+          const cameraPermission =
+            await ImagePicker.requestCameraPermissionsAsync();
+          if (!cameraPermission.granted) {
+            alert('Permissão para acessar a câmera é necessária!');
+            return;
+          }
 
-    if (!permissionResult.granted) {
-      alert('Permissão para acessar a galeria é necessária!');
-      return;
-    }
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            quality: 1,
+          });
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-    });
+          if (!result.canceled) {
+            convertUriToBase64(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Galeria',
+        onPress: async () => {
+          const galleryPermission =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!galleryPermission.granted) {
+            alert('Permissão para acessar a galeria é necessária!');
+            return;
+          }
 
-    if (!result.canceled) {
-      convertUriToBase64(result.assets[0].uri);
-    }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.Images,
+            allowsEditing: true,
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            convertUriToBase64(result.assets[0].uri);
+          }
+        },
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ]);
   };
 
   const handleDateChange = (event, date) => {
