@@ -1,4 +1,3 @@
-// CardItem.js
 import { Image, Text, View, StyleSheet } from 'react-native';
 
 export function CardItem({ nome, date, image }) {

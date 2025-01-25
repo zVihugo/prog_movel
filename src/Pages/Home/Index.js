@@ -1,4 +1,3 @@
-// Home.js
 import { useState, useEffect } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { CardItem } from '../../components/CardItem/Index';
