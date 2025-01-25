@@ -1,60 +1,58 @@
 import { Image, Text, View, StyleSheet } from 'react-native';
 
 export function CardItem({ nome, date, image }) {
+  const safeDate = typeof date === 'string' ? date : 'Data não disponível';
   return (
-    <View style={Styles.card}>
-      <View style={Styles.imageContainer}>
+    <View style={styles.card}>
+      <View style={styles.imageContainer}>
         <Image 
-          source={typeof image === 'string' ? { uri: `data:image/jpeg;base64,${image}` } : image} 
-          style={Styles.image} 
+          source={{ uri: `data:image/jpeg;base64,${image}` }} 
+          style={styles.image} 
         />
       </View>
-      <View style={Styles.textContainer}>
-        <Text style={Styles.nome}>{nome}</Text>
-        <Text style={Styles.date}>{date}</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.nome}>{nome}</Text>
+        <Text style={styles.date}>{safeDate}</Text>
       </View>
     </View>
   );
 }
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   card: {
-    flexDirection: 'column',
-    alignItems: 'center',
+    width: 150,  
+    height: 200, 
     backgroundColor: '#fff',
-    padding: 10,
-    marginVertical: 8,
-    marginHorizontal: 15,
-    height: '90%',
     borderRadius: 10,
-    elevation: 1,
+    padding: 15,  
+    justifyContent: 'space-between',
   },
   imageContainer: {
-    justifyContent: 'center',
-    marginRight: 10,
-    marginTop: 15,
+    height: '60%',  
+    marginBottom: 10,
   },
   image: {
-    width: 100, 
-    height: 100,
-    borderRadius: 10,
-    resizeMode: 'cover', 
+    width: '100%',
+    height: '100%',
+    borderRadius: 6,
+    resizeMode: 'contain',
   },
   textContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 5,
   },
   nome: {
-    fontSize: 36,
+    fontSize: 18, 
     fontFamily: 'AveriaLibre-Regular',
     color: '#3F92C5',
     textAlign: 'center',
+    lineHeight: 22, 
+    maxHeight: 44,
   },
   date: {
-    marginTop: 5,
-    fontSize: 16,
+    fontSize: 14, 
     color: '#8B8B8B',
     fontFamily: 'AveriaLibre-Regular',
-    textAlign: 'center',
+    marginTop: 6,
   },
 });

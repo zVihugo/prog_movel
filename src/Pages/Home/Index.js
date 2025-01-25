@@ -1,32 +1,92 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
-
-import {Card} from '../../components/Card/Index';
-import {useState} from 'react';
-
+import { useState, useEffect } from 'react';
+import { 
+  Dimensions, 
+  ScrollView, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { CardItem } from '../../components/CardItem/Index';
+import { db } from '../../firebase/config';
+import { getDocs, collection, query, orderBy } from 'firebase/firestore';
 
-export function Home({navigation}) {
+export function Home({ navigation }) {
+  const [pesquisas, setPesquisas] = useState([]);
   const [search, setSearch] = useState('');
+  const [allPesquisas, setAllPesquisas] = useState([]);
 
-  const goToNewResearch = () => {
-    navigation.navigate('NovaPesquisa');
+  useEffect(() => {
+    const fetchPesquisas = async () => {
+      try {
+        const querySnapshot = await getDocs(query(collection(db, 'pesquisas'), orderBy('data', 'asc')));
+        const pesquisasList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const sorted = pesquisasList.sort((a, b) => {
+          const dateA = convertStringToDate(a.data);
+          const dateB = convertStringToDate(b.data);
+          return dateA - dateB;
+        });
+        setAllPesquisas(sorted);
+        setPesquisas(sorted);
+      } catch (error) {
+        console.error('Erro ao buscar as pesquisas:', error);
+      }
+    };
+    fetchPesquisas();
+  }, []);
+
+  useEffect(() => {
+    if (search) {
+      const filtered = allPesquisas.filter(item =>
+        item.nome.toLowerCase().includes(search.toLowerCase())
+      );
+      setPesquisas(filtered);
+    } else {
+      setPesquisas(allPesquisas);
+    }
+  }, [search, allPesquisas]);
+
+  const convertStringToDate = (dateString) => {
+    try {
+      if (!dateString || typeof dateString !== 'string') {
+        console.warn('Invalid date string:', dateString);
+        return new Date(0); 
+      }
+      
+      const [month, day, year] = dateString.split('/');
+      return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+    } catch (error) {
+      console.error('Error converting date:', error);
+      return new Date(0); 
+    }
   };
 
-  const goToActionSearch = () => {
-    navigation.navigate('AcoesPesquisa');
+  const handleCardPress = (surveyId) => {
+    navigation.navigate('AcoesPesquisa', { surveyId });
   };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => handleCardPress(item.id)}
+      style={styles.cardWrapper}
+    >
+      <CardItem
+        nome={item.nome}
+        date={item.data}
+        image={item.imagemUri}
+      />
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={styles.container}>
-
-    <ScrollView>
+    <ScrollView 
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.inputText}>
         <Icon style={styles.icon} name="search" color={'#8B8B8B'} size={25} />
         <TextInput
@@ -38,62 +98,83 @@ export function Home({navigation}) {
         />
       </View>
 
-      
-      <ScrollView horizontal={true}>
-        <TouchableOpacity
-          style={{alignItems: 'center', paddingHorizontal: 10}}
-          onPress={goToActionSearch}>
-          <Card />
-        </TouchableOpacity>
+      <ScrollView
+        horizontal
+        style={styles.horizontalScroll}
+        contentContainerStyle={styles.cardsContainer}
+        showsHorizontalScrollIndicator={false}
+      >
+        {pesquisas.map((item) => (
+          <TouchableOpacity 
+            style={styles.cardWrapper}
+            key={item.id}
+            onPress={() => handleCardPress(item.id)}
+          >
+            <CardItem
+              nome={item.nome}
+              date={item.data}
+              image={item.imagemUri}
+            />
+          </TouchableOpacity>
+        ))}
       </ScrollView>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={goToNewResearch}>
-          <Text style={styles.textButton}>NOVA PESQUISA</Text>
-        </TouchableOpacity>
-      </View>
+
+      <TouchableOpacity 
+        style={styles.newResearchButton}
+        onPress={() => navigation.navigate('NovaPesquisa')}
+      >
+        <Text style={styles.textButton}>NOVA PESQUISA</Text>
+      </TouchableOpacity>
     </ScrollView>
-      
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
+    flexGrow: 1,
     backgroundColor: '#372775',
-    padding: 20
-  },
-  icon: {
-    marginLeft: 15,
+    padding: 20,
+    minHeight: Dimensions.get('window').height,
   },
   inputText: {
     marginTop: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
-    width: '100%',
+    borderRadius: 5,
     height: 45,
-    marginBottom: 15
+    marginBottom: 15,
   },
   search: {
-    backgroundColor: '#fff',
     flex: 1,
     fontFamily: 'AveriaLibre-Regular',
     fontSize: 20,
+    paddingHorizontal: 10,
+    color: '#8B8B8B',
   },
-  buttonContainer: {
-    marginTop: 15,
+  horizontalScroll: {
+    marginVertical: 15,
+  },
+  cardsContainer: {
+    paddingRight: 20,
+  },
+  cardWrapper: {
+    width: 150,
+    height: 200,
+    marginRight: 15,
+  },
+  newResearchButton: {
     backgroundColor: '#37BD6D',
-    justifyContent: 'center',
+    borderRadius: 5,
+    paddingVertical: 15,
+    marginTop: 20,
     width: '100%',
-    height: 45,
+    elevation: 3,
   },
   textButton: {
-    textAlign: 'center',
     color: '#fff',
     fontFamily: 'AveriaLibre-Regular',
-    fontSize: 28,
+    fontSize: 24,
+    textAlign: 'center',
   },
 });
