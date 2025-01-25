@@ -1,59 +1,60 @@
-// CardItem.js
 import { Image, Text, View, StyleSheet } from 'react-native';
 
 export function CardItem({ nome, date, image }) {
-  const safeDate = typeof date === 'string' ? date : 'Data não disponível';
   return (
-    <View style={styles.card}>
-      <View style={styles.imageContainer}>
+    <View style={Styles.card}>
+      <View style={Styles.imageContainer}>
         <Image 
-          source={{ uri: `data:image/jpeg;base64,${image}` }} 
-          style={styles.image} 
+          source={typeof image === 'string' ? { uri: `data:image/jpeg;base64,${image}` } : image} 
+          style={Styles.image} 
         />
       </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.nome}>{nome}</Text>
-        <Text style={styles.date}>{safeDate}</Text>
+      <View style={Styles.textContainer}>
+        <Text style={Styles.nome}>{nome}</Text>
+        <Text style={Styles.date}>{date}</Text>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const Styles = StyleSheet.create({
   card: {
-    width: 150,  
-    height: 200, 
+    flexDirection: 'column',
+    alignItems: 'center',
     backgroundColor: '#fff',
+    padding: 10,
+    marginVertical: 8,
+    marginHorizontal: 15,
+    height: '90%',
     borderRadius: 10,
-    padding: 15,  
-    justifyContent: 'space-between',
+    elevation: 1,
   },
   imageContainer: {
-    height: '60%',  
-    marginBottom: 10,
+    justifyContent: 'center',
+    marginRight: 10,
+    marginTop: 15,
   },
   image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 6,
-    resizeMode: 'contain',
+    width: 100, 
+    height: 100,
+    borderRadius: 10,
+    resizeMode: 'cover', 
   },
   textContainer: {
-    alignItems: 'center',
-    paddingHorizontal: 5,
+    flex: 1,
+    justifyContent: 'center',
   },
   nome: {
-    fontSize: 18, 
+    fontSize: 36,
     fontFamily: 'AveriaLibre-Regular',
     color: '#3F92C5',
     textAlign: 'center',
-    lineHeight: 22, 
-    maxHeight: 44,
   },
   date: {
-    fontSize: 14, 
+    marginTop: 5,
+    fontSize: 16,
     color: '#8B8B8B',
     fontFamily: 'AveriaLibre-Regular',
-    marginTop: 6,
+    textAlign: 'center',
   },
 });
