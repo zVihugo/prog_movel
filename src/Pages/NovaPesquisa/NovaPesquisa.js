@@ -14,8 +14,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { collection, addDoc } from 'firebase/firestore';
-import { initializeFirestore } from 'firebase/firestore';
-import { auth_mod, app } from '../../firebase/config';
+import { db } from '../../firebase/config';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export function NovaPesquisa({ navigation }) {
@@ -27,10 +26,6 @@ export function NovaPesquisa({ navigation }) {
   const [nomeError, setNomeError] = useState('');
   const [dataError, setDataError] = useState('');
   const dispatch = useDispatch();
-
-  const db = initializeFirestore(app, {
-    experimentalForceLongPolling: true,
-  });
 
   const convertUriToBase64 = async (uri) => {
     try {
