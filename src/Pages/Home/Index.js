@@ -65,13 +65,17 @@ export function Home({ navigation }) {
     }
   };
 
-  const handleCardPress = (surveyId) => {
-    navigation.navigate('AcoesPesquisa', { surveyId });
+  const handleCardPress = (pesquisaId, pesquisaNome) => {
+    console.log('Navegando com:', {pesquisaId, pesquisaNome});
+    navigation.navigate('AcoesPesquisa', { 
+      pesquisaId,
+      pesquisaNome
+     });
   };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => handleCardPress(item.id)}
+      onPress={() => handleCardPress(item.id, item.nome)}
       style={styles.cardWrapper}
     >
       <CardItem
@@ -108,7 +112,7 @@ export function Home({ navigation }) {
           <TouchableOpacity 
             style={styles.cardWrapper}
             key={item.id}
-            onPress={() => handleCardPress(item.id)}
+            onPress={() => handleCardPress(item.id, item.nome)}
           >
             <CardItem
               nome={item.nome}
