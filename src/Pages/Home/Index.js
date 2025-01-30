@@ -8,9 +8,9 @@ import {
   TouchableOpacity, 
   View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { CardItem } from '../../components/CardItem/Index';
 import { db } from '../../firebase/config';
 import { getDocs, collection, query, orderBy } from 'firebase/firestore';
+import { Card } from '../../components/Card/Index';
 
 export function Home({ navigation }) {
   const [pesquisas, setPesquisas] = useState([]);
@@ -66,25 +66,11 @@ export function Home({ navigation }) {
   };
 
   const handleCardPress = (pesquisaId, pesquisaNome) => {
-    console.log('Navegando com:', {pesquisaId, pesquisaNome});
     navigation.navigate('AcoesPesquisa', { 
       pesquisaId,
       pesquisaNome
      });
   };
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => handleCardPress(item.id, item.nome)}
-      style={styles.cardWrapper}
-    >
-      <CardItem
-        nome={item.nome}
-        date={item.data}
-        image={item.imagemUri}
-      />
-    </TouchableOpacity>
-  );
 
   return (
     <ScrollView 
@@ -108,17 +94,12 @@ export function Home({ navigation }) {
         contentContainerStyle={styles.cardsContainer}
         showsHorizontalScrollIndicator={false}
       >
-        {pesquisas.map((item) => (
+        {pesquisas.map((pesquisa) => (
           <TouchableOpacity 
             style={styles.cardWrapper}
-            key={item.id}
-            onPress={() => handleCardPress(item.id, item.nome)}
+            onPress={() => handleCardPress(pesquisa.id, pesquisa.nome)}
           >
-            <CardItem
-              nome={item.nome}
-              date={item.data}
-              image={item.imagemUri}
-            />
+            <Card key={pesquisa.id} pesquisa={pesquisa} />
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -163,8 +144,8 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   cardWrapper: {
-    width: 150,
-    height: 200,
+    width: 170,
+    height: 210,
     marginRight: 15,
   },
   newResearchButton: {
