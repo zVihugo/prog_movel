@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  StyleSheet,
+  Alert,
+  Image,
+  Modal,
   Text,
-  View,
   TextInput,
   TouchableOpacity,
-  Alert,
-  Modal,
+  StyleSheet,
+  View
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -16,26 +17,58 @@ import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
-export function ModificarPesquisa({ navigation }) {
-  const [nome, setNome] = useState('Pesquisa Exemplo');
-  const [data, setData] = useState('17/11/2024');
+export function ModificarPesquisa({ navigation, route }) {
+  const { pesquisaId } = route.params;
+  const [nome, setNome] = useState('');
+  const [data, setData] = useState('');
   const [imagemUri, setImagemUri] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [nomeError, setNomeError] = useState('');
   const [dataError, setDataError] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchPesquisaData = async () => {
+      try {
+        const docRef = doc(db, 'pesquisas', pesquisaId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const pesquisaData = docSnap.data();
+          setNome(pesquisaData.nome);
+          setData(pesquisaData.data);
+          setImagemUri(pesquisaData.imagemUri);
+          
+          const [day, month, year] = pesquisaData.data.split('/');
+          setSelectedDate(new Date(year, month - 1, day));
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar a pesquisa:', error);
+        Alert.alert('Erro', 'Falha ao carregar a pesquisa');
+        setLoading(false);
+      }
+    };
+
+    fetchPesquisaData();
+  }, []);
 
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
     if (date) {
       setSelectedDate(date);
-      setData(date.toLocaleDateString());
+      const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      setData(formattedDate);
       setDataError('');
     }
   };
+
   const convertUriToBase64 = async (uri) => {
     try {
       const manipulatedImage = await manipulateAsync(
@@ -51,15 +84,16 @@ export function ModificarPesquisa({ navigation }) {
       setImagemUri(base64);
     } catch (error) {
       console.error('Erro ao manipular e converter a imagem:', error);
+      Alert.alert('Erro', 'Falha ao processar a imagem');
     }
   };
+
   const handleEscolherImagem = async () => {
     Alert.alert('Selecionar Imagem', 'Escolha a fonte da imagem:', [
       {
         text: 'Câmera',
         onPress: async () => {
-          const cameraPermission =
-            await ImagePicker.requestCameraPermissionsAsync();
+          const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
           if (!cameraPermission.granted) {
             alert('Permissão para acessar a câmera é necessária!');
             return;
@@ -78,8 +112,7 @@ export function ModificarPesquisa({ navigation }) {
       {
         text: 'Galeria',
         onPress: async () => {
-          const galleryPermission =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          const galleryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
           if (!galleryPermission.granted) {
             alert('Permissão para acessar a galeria é necessária!');
             return;
@@ -102,7 +135,8 @@ export function ModificarPesquisa({ navigation }) {
       },
     ]);
   };
-  const handleSalvar = () => {
+
+  const handleSalvar = async () => {
     let valid = true;
 
     if (!nome.trim()) {
@@ -120,17 +154,43 @@ export function ModificarPesquisa({ navigation }) {
     }
 
     if (valid) {
-      console.log({ nome, data });
-      dispatch(reducerSetNovaPesquisa({ nome: nome, data: data }));
-      navigation.navigate('Home');
+      try {
+        const pesquisaRef = doc(db, 'pesquisas', pesquisaId);
+        await updateDoc(pesquisaRef, {
+          nome,
+          data,
+          imagemUri
+        });
+        
+        dispatch(reducerSetNovaPesquisa({ nome, data, imagemUri }));
+        Alert.alert('Sucesso', 'Pesquisa atualizada com sucesso!');
+        navigation.navigate('Home');
+      } catch (error) {
+        console.error('Error updating pesquisa:', error);
+        Alert.alert('Erro', 'Falha ao atualizar a pesquisa');
+      }
     }
   };
 
-  const handleApagar = () => {
-    console.log('Pesquisa apagada');
+  const handleApagar = async () => {
+    try {
+      await deleteDoc(doc(db, 'pesquisas', pesquisaId));
+      Alert.alert('Sucesso', 'Pesquisa apagada com sucesso!');
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Error deleting pesquisa:', error);
+      Alert.alert('Erro', 'Falha ao apagar a pesquisa');
+    }
     setModalVisible(false);
-    navigation.navigate('Drawer');
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Carregando pesquisa...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -167,7 +227,7 @@ export function ModificarPesquisa({ navigation }) {
             <DateTimePicker
               value={selectedDate}
               mode="date"
-              display={'default'}
+              display="default"
               onChange={handleDateChange}
             />
           )}
@@ -179,7 +239,14 @@ export function ModificarPesquisa({ navigation }) {
             onPress={handleEscolherImagem}
             style={styles.iconContainer}
           >
-            <Icon2 name={'party-popper'} size={50} color={'#C60EB3'} />
+            {imagemUri ? (
+              <Image
+                source={{ uri: `data:image/jpeg;base64,${imagemUri}` }}
+                style={styles.imagePreview}
+              />
+            ) : (
+              <Icon2 name="party-popper" size={50} color="#C60EB3" />
+            )}
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.buttonContent} onPress={handleSalvar}>
@@ -234,6 +301,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#372775',
     justifyContent: 'center',
   },
+  loadingText: {
+    color: '#FFF',
+    fontSize: 18,
+    textAlign: 'center',
+  },
   content: {
     marginTop: 55,
     alignItems: 'center',
@@ -255,7 +327,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 40,
     paddingLeft: 10,
-
     fontSize: 16,
     fontFamily: 'AveriaLibre-Regular',
     color: '#3F92C5',
@@ -264,7 +335,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-
     height: 40,
   },
   iconWrapper: {
@@ -277,6 +347,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '45%',
+    height: 100,
+  },
+  imagePreview: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   buttonContent: {
     backgroundColor: '#37BD6D',

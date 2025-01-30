@@ -19,6 +19,7 @@ import { store } from '../redux/store';
 const Stack = createStackNavigator();
 
 export function Routes() {
+
   return (
    <Provider store={store}>
      <NavigationContainer>
@@ -94,16 +95,18 @@ export function Routes() {
         <Stack.Screen
           name="AcoesPesquisa"
           component={AcoesPesquisa}
-          options={{
-            headerTintColor: 'white',
-            headerStyle: {
-              backgroundColor: '#2B1D62',
-            },
-            title: 'Carnaval',
-            headerTitleStyle: {
-              fontFamily: 'AveriaLibre-Bold',
-              fontSize: 30,
-            },
+          options={({ route }) => {
+            return {
+              headerTintColor: 'white',
+              headerStyle: {
+                backgroundColor: '#2B1D62',
+              },
+              title: route.params?.pesquisaNome || 'Ações da Pesquisa',
+              headerTitleStyle: {
+                fontFamily: 'AveriaLibre-Bold',
+                fontSize: 30,
+              },
+            };
           }}
         />
         <Stack.Screen
