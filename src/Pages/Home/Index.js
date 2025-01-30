@@ -56,7 +56,6 @@ export function Home({ navigation }) {
         console.warn('Invalid date string:', dateString);
         return new Date(0); 
       }
-      
       const [month, day, year] = dateString.split('/');
       return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
     } catch (error) {
@@ -130,18 +129,21 @@ const styles = StyleSheet.create({
     height: 45,
     marginBottom: 15,
   },
+  icon: {
+    paddingHorizontal: 10
+  },
   search: {
     flex: 1,
     fontFamily: 'AveriaLibre-Regular',
     fontSize: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     color: '#8B8B8B',
   },
   horizontalScroll: {
     marginVertical: 15,
   },
   cardsContainer: {
-    paddingRight: 20,
+    paddingRight: 10,
   },
   cardWrapper: {
     width: 170,
