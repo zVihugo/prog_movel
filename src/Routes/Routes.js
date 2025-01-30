@@ -15,10 +15,12 @@ import { Agradecimento } from '../Pages/Agradecimento';
 
 import { Provider } from 'react-redux';
 import { store } from '../redux/store';
+import { useSelector } from 'react-redux';
 
 const Stack = createStackNavigator();
 
 export function Routes() {
+
   return (
    <Provider store={store}>
      <NavigationContainer>
@@ -95,7 +97,6 @@ export function Routes() {
           name="AcoesPesquisa"
           component={AcoesPesquisa}
           options={({ route }) => {
-            console.log('Route Params:', route.params);
             return {
               headerTintColor: 'white',
               headerStyle: {
