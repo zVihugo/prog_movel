@@ -41,7 +41,7 @@ export function NovaPesquisa({ navigation }) {
 
       setImagemUri(base64);
     } catch (error) {
-      console.error('Erro ao manipular e converter a imagem: ', error);
+      console.error('Erro ao manipular e converter a imagem:', error);
     }
   };
 

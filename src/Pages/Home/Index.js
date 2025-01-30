@@ -1,26 +1,52 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+// Home.js
+import { useState, useEffect } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { CardItem } from '../../components/CardItem/Index';
+import { db } from '../../firebase/config';
+import { getDocs, collection, query, orderBy } from 'firebase/firestore';
 
-import {Card} from '../../components/Card/Index';
-import {useState} from 'react';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+export function Home({ navigation }) {
+  const [pesquisas, setPesquisas] = useState([]);
 
-export function Home({navigation}) {
-  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const fetchPesquisas = async () => {
+      try {
+        const querySnapshot = await getDocs(query(collection(db, 'pesquisas'), orderBy('data', 'asc')));
+        const pesquisasList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const sorted = pesquisasList.sort((a, b) => {
+          const dateA = convertStringToDate(a.data);
+          const dateB = convertStringToDate(b.data);
+          return dateA - dateB; // Newest first
+        });
+        setPesquisas(sorted);
+      } catch (error) {
+        console.error('Erro ao buscar as pesquisas:', error);
+      }
+    };
+    fetchPesquisas();
+  }, []);
 
-  const goToNewResearch = () => {
-    navigation.navigate('NovaPesquisa');
+  const convertStringToDate = (dateString) => {
+    try {
+      if (!dateString || typeof dateString !== 'string') {
+        console.warn('Invalid date string:', dateString);
+        return new Date(0); // Return default date
+      }
+      
+      const [month, day, year] = dateString.split('/');
+      return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+    } catch (error) {
+      console.error('Error converting date:', error);
+      return new Date(0); // Fallback date
+    }
   };
 
-  const goToActionSearch = () => {
-    navigation.navigate('AcoesPesquisa');
+  const handleCardPress = (surveyId) => {
+    navigation.navigate('AcoesPesquisa', { surveyId });
   };
 
   const renderItem = ({ item }) => (
@@ -45,19 +71,33 @@ export function Home({navigation}) {
         {/* Search input */}
       </View>
 
-      
-      <ScrollView horizontal={true}>
-        <TouchableOpacity
-          style={{alignItems: 'center', paddingHorizontal: 10}}
-          onPress={goToActionSearch}>
-          <Card />
-        </TouchableOpacity>
+      <ScrollView
+        horizontal
+        style={styles.horizontalScroll}
+        contentContainerStyle={styles.cardsContainer}
+        showsHorizontalScrollIndicator={false}
+      >
+        {pesquisas.map((item) => (
+          <TouchableOpacity 
+            style={styles.cardWrapper}
+            key={item.id}
+            onPress={() => handleCardPress(item.id)}
+          >
+            <CardItem
+              nome={item.nome}
+              date={item.data}
+              image={item.imagemUri}
+            />
+          </TouchableOpacity>
+        ))}
       </ScrollView>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={goToNewResearch}>
-          <Text style={styles.textButton}>NOVA PESQUISA</Text>
-        </TouchableOpacity>
-      </View>
+
+      <TouchableOpacity 
+        style={styles.newResearchButton}
+        onPress={() => navigation.navigate('NovaPesquisa')}
+      >
+        <Text style={styles.textButton}>NOVA PESQUISA</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -82,9 +122,21 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'AveriaLibre-Regular',
     fontSize: 20,
+    paddingHorizontal: 10,
+    color: '#8B8B8B',
   },
-  buttonContainer: {
-    marginTop: 15,
+  horizontalScroll: {
+    marginVertical: 15,
+  },
+  cardsContainer: {
+    paddingRight: 20,
+  },
+  cardWrapper: {
+    width: 150,
+    height: 200,
+    marginRight: 15,
+  },
+  newResearchButton: {
     backgroundColor: '#37BD6D',
     borderRadius: 5,
     paddingVertical: 15,

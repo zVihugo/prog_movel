@@ -2,23 +2,22 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export function AcoesPesquisa({navigation, route}) { 
-  const { pesquisaId } = route.params;
-
+export function AcoesPesquisa({navigation}) {
   const handleModificarPage = () => {
-    navigation.navigate('ModificarPesquisa', { pesquisaId });
+    navigation.navigate('ModificarPesquisa'); 
   };
-
   const handleColetaDadosPage = () => {
-    navigation.navigate('ColetaDados', { pesquisaId });
+    navigation.navigate('ColetaDados');
   };
 
   const handleRelatorioPage = () => {
-    navigation.navigate('Relatorio', { pesquisaId });
+    navigation.navigate('Relatorio'); 
   };
 
+  
   return (
     <View style={styles.container}>
+      <Text style={styles.header} />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleModificarPage}>
           <Icon name="pencil" size={50} color="#fff" />
@@ -43,6 +42,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#372775',
     padding: 20,
     height: 100,
+  },
+  header: {
+    color: '#fff',
+    height: 20,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   buttonContainer: {
     header: 80,
