@@ -26,10 +26,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,  
     justifyContent: 'space-between',
+    alignItems: 'center'
   },
   imageContainer: {
-    height: '60%',  
-    marginBottom: 10,
+    width: 100,
+    height: 100,
+    overflow: 'hidden',
+
   },
   image: {
     width: '100%',
