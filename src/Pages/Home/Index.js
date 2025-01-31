@@ -8,67 +8,30 @@ import {
   TouchableOpacity, 
   View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { db } from '../../firebase/config';
-import { getDocs, collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '../../components/Card/Index';
 
+import { useSelector, useDispatch } from 'react-redux';
+import { getAllPesquisas } from '../../store/fetchActions'
+
 export function Home({ navigation }) {
-  const [pesquisas, setPesquisas] = useState([]);
   const [search, setSearch] = useState('');
-  const [allPesquisas, setAllPesquisas] = useState([]);
+  const pesquisas = useSelector((state) => state.pesquisas);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchPesquisas = async () => {
-      try {
-        const querySnapshot = await getDocs(query(collection(db, 'pesquisas'), orderBy('data', 'asc')));
-        const pesquisasList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const sorted = pesquisasList.sort((a, b) => {
-          const dateA = convertStringToDate(a.data);
-          const dateB = convertStringToDate(b.data);
-          return dateA - dateB;
-        });
-        setAllPesquisas(sorted);
-        setPesquisas(sorted);
-      } catch (error) {
-        console.error('Erro ao buscar as pesquisas:', error);
-      }
-    };
-    fetchPesquisas();
-  }, []);
+    dispatch(getAllPesquisas());
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (search) {
-      const filtered = allPesquisas.filter(item =>
-        item.nome.toLowerCase().includes(search.toLowerCase())
-      );
-      setPesquisas(filtered);
-    } else {
-      setPesquisas(allPesquisas);
-    }
-  }, [search, allPesquisas]);
-
-  const convertStringToDate = (dateString) => {
-    try {
-      if (!dateString || typeof dateString !== 'string') {
-        console.warn('Invalid date string:', dateString);
-        return new Date(0); 
-      }
-      const [month, day, year] = dateString.split('/');
-      return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-    } catch (error) {
-      console.error('Error converting date:', error);
-      return new Date(0); 
-    }
-  };
-
+  const filterPesquisa = pesquisas.filter(item => item.nome.toLowerCase().includes(search.toLowerCase()));
+  
   const handleCardPress = (pesquisaId, pesquisaNome) => {
-    navigation.navigate('AcoesPesquisa', { 
-      pesquisaId,
-      pesquisaNome
-     });
+    const pesquisaExiste = pesquisas.find(item => item.id === pesquisaId);
+    if (pesquisaExiste) {
+      navigation.navigate('AcoesPesquisa', { 
+        pesquisaId,
+        pesquisaNome
+      });
+    }
   };
 
   return (
@@ -93,10 +56,10 @@ export function Home({ navigation }) {
         contentContainerStyle={styles.cardsContainer}
         showsHorizontalScrollIndicator={false}
       >
-        {pesquisas.map((pesquisa) => (
-          <TouchableOpacity 
-            style={styles.cardWrapper}
+        {filterPesquisa.map((pesquisa) => (
+          <TouchableOpacity
             key={pesquisa.id} 
+            style={styles.cardWrapper}
             onPress={() => handleCardPress(pesquisa.id, pesquisa.nome)}
           >
             <Card pesquisa={pesquisa} />

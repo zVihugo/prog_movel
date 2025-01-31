@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth_mod } from '../../firebase/config';
 import { useDispatch } from 'react-redux';
-import { reducerSetEmail } from '../../redux/emailSlice';
+import { addEmail } from '../../store/email/emailSlice';
 
 export function Login({navigation}) {
   const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ export function Login({navigation}) {
       signInWithEmailAndPassword(auth_mod, email, password)
       .then((userLogged) => {
         console.log("Usuário autenticado com sucesso:  " + JSON.stringify(userLogged));
-        dispatch(reducerSetEmail({ email: email }));
+        dispatch(addEmail(email));
         navigation.navigate('Drawer');
       }).catch((error) => {
         console.log("Error: " + JSON.stringify(error));

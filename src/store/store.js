@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import emailReducer from './emailSlice';
-import novaPesquisaReducer from './novaPesquisaSlice';
+
+import emailReducer from './email/emailSlice';
+import pesquisaReducer from './pesquisa';
 
 export const store = configureStore({
   reducer: {
     email: emailReducer,
-    novaPesquisa: novaPesquisaReducer
+    pesquisas: pesquisaReducer,
   }
 });

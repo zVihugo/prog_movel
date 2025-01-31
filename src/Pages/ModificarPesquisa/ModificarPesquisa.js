@@ -12,13 +12,11 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useDispatch } from 'react-redux';
-import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { deletePesquisa, update } from '../../store/fetchActions';
+import { useDispatch, useSelector } from 'react-redux';
 
 export function ModificarPesquisa({ navigation, route }) {
   const { pesquisaId } = route.params;
@@ -33,31 +31,23 @@ export function ModificarPesquisa({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const fetchPesquisaData = async () => {
-      try {
-        const docRef = doc(db, 'pesquisas', pesquisaId);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          const pesquisaData = docSnap.data();
-          setNome(pesquisaData.nome);
-          setData(pesquisaData.data);
-          setImagemUri(pesquisaData.imagemUri);
-          
-          const [day, month, year] = pesquisaData.data.split('/');
-          setSelectedDate(new Date(year, month - 1, day));
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Erro ao carregar a pesquisa:', error);
-        Alert.alert('Erro', 'Falha ao carregar a pesquisa');
-        setLoading(false);
-      }
-    };
+  const pesquisa = useSelector((state) => {
+    return state.pesquisas.find((item) => item.id === pesquisaId);
+  });
 
-    fetchPesquisaData();
-  }, []);
+  useEffect(() => {
+    if (pesquisa === undefined) {
+      console.log('Erro ao carregar a pesquisa:');
+      setLoading(false);
+      return
+    } 
+    setNome(pesquisa.nome);
+    setData(pesquisa.data);
+    setImagemUri(pesquisa.imagemUri);
+    const [day, month, year] = pesquisa.data.split('/');
+    setSelectedDate(new Date(year, month - 1, day));
+    setLoading(false);
+  }, [pesquisa]);
 
   const handleDateChange = (event, date) => {
     setShowDatePicker(false);
@@ -155,14 +145,13 @@ export function ModificarPesquisa({ navigation, route }) {
 
     if (valid) {
       try {
-        const pesquisaRef = doc(db, 'pesquisas', pesquisaId);
-        await updateDoc(pesquisaRef, {
-          nome,
+        const pesquisaAtualizada = {
+          id: pesquisaId,
+          nome, 
           data,
-          imagemUri
-        });
-        
-        dispatch(reducerSetNovaPesquisa({ nome, data, imagemUri }));
+          imagemUri,
+        };
+        dispatch(update(pesquisaAtualizada));
         Alert.alert('Sucesso', 'Pesquisa atualizada com sucesso!');
         navigation.navigate('Home');
       } catch (error) {
@@ -172,11 +161,13 @@ export function ModificarPesquisa({ navigation, route }) {
     }
   };
 
-  const handleApagar = async () => {
+  const handleApagar =  () => {
     try {
-      await deleteDoc(doc(db, 'pesquisas', pesquisaId));
+      dispatch(deletePesquisa(pesquisaId));
       Alert.alert('Sucesso', 'Pesquisa apagada com sucesso!');
-      navigation.navigate('Home');
+      setTimeout(() => {
+        navigation.navigate('Home');
+      }, 500);
     } catch (error) {
       console.error('Error deleting pesquisa:', error);
       Alert.alert('Erro', 'Falha ao apagar a pesquisa');
