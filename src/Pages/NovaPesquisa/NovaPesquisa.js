@@ -12,10 +12,8 @@ import * as FileSystem from 'expo-file-system';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
-import { reducerSetNovaPesquisa } from '../../redux/novaPesquisaSlice';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { addNewPesquisa } from '../../store/fetchActions';
 
 export function NovaPesquisa({ navigation }) {
   const [nome, setNome] = useState('');
@@ -123,27 +121,12 @@ export function NovaPesquisa({ navigation }) {
 
     if (valid) {
       console.log({ nome, data, imagemUri });
-      const colecaoPesquisa = collection(db, 'pesquisas');
       const doc = {
         nome: nome,
         data: data,
         imagemUri: imagemUri,
       };
-      addDoc(colecaoPesquisa, doc)
-        .then((retorno) => {
-          console.log('Documento adicionado com sucesso: ' + retorno.id);
-          dispatch(
-            reducerSetNovaPesquisa({
-              nome: nome,
-              data: data,
-              imagemUri: imagemUri,
-            }),
-          );
-        })
-        .catch((error) => {
-          console.error('Erro ao adicionar documento: ' + error);
-        });
-
+      dispatch(addNewPesquisa(doc));
       navigation.navigate('Drawer');
     }
   };
