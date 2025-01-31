@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/Octicons';
 
 export function CustomDrawer(props) {
 
-  const email = useSelector((state) => state.email.email);
+  const email = useSelector((state) => state.email);
 
   return (
     <DrawerContentScrollView
