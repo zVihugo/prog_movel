@@ -14,7 +14,7 @@ import {ModificarPesquisa} from '../Pages/ModificarPesquisa/ModificarPesquisa';
 import { Agradecimento } from '../Pages/Agradecimento';
 
 import { Provider } from 'react-redux';
-import { store } from '../redux/store';
+import { store } from '../store/store';
 
 const Stack = createStackNavigator();
 
