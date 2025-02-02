@@ -23,7 +23,6 @@ export function Relatorio({ route }) {
                         key: key, 
                     }));
                     setData(formattedData);
-                    console.log(formattedData); 
                 }
             } catch (error) {
                 console.error('Erro ao buscar votos:', error);
@@ -46,24 +45,27 @@ export function Relatorio({ route }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Relatório da Pesquisa</Text>
             <View style={styles.row}>
                 <PieChart
-                    style={{ height: 250, width: screenWidth * 0.5 }}
+                    style={{ height: 320, width: screenWidth * 0.5 }}
                     data={data}
                     innerRadius={0}
                     outerRadius={'70%'}
                     padAngle={0.02}
                 />
                 <View style={styles.legendContainer}>
-                    {data.map((item, index) => (
+                    {data.length > 0 ? data.map((item, index) => (
                         <View key={index} style={styles.legendItem}>
                             <View
                                 style={[styles.legendColor, { backgroundColor: item.svg.fill }]} 
                             />
                             <Text style={styles.legendText}>{item.key}</Text>
                         </View>
-                    ))}
+                    )) : ( 
+                        <View style={styles.containerText}>
+                            <Text style={styles.text}>Sem avaliações por enquanto</Text>
+                        </View>
+                    )}
                 </View>
             </View>
         </View>
@@ -74,15 +76,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#372775',
-        padding: 20,
+        padding: 20 ,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    header: {
-        color: '#fff',
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 20,
+         fontFamily: 'AveriaLibre-Regular',
     },
     row: {
         flexDirection: 'row',
@@ -90,7 +87,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     legendContainer: {
-        marginLeft: 20,
+        marginLeft: 50,
         justifyContent: 'center',
     },
     legendItem: {
@@ -101,11 +98,21 @@ const styles = StyleSheet.create({
     legendColor: {
         width: 20,
         height: 20,
-        borderRadius: 5,
         marginRight: 10,
     },
     legendText: {
         color: '#FFF',
         fontSize: 18,
     },
+    containerText:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 275
+    },
+    text: {
+        color: '#FFF',
+        fontSize: 18,
+        textAlign: 'center'
+    }
 });
