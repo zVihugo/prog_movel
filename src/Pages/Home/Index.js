@@ -9,7 +9,6 @@ import {
   View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Card } from '../../components/Card/Index';
-
 import { useSelector, useDispatch } from 'react-redux';
 import { getAllPesquisas } from '../../store/fetchActions'
 
@@ -23,7 +22,7 @@ export function Home({ navigation }) {
   }, [dispatch]);
 
   const filterPesquisa = pesquisas.filter(item => item.nome.toLowerCase().includes(search.toLowerCase()));
-  
+
   const handleCardPress = (pesquisaId, pesquisaNome) => {
     const pesquisaExiste = pesquisas.find(item => item.id === pesquisaId);
     if (pesquisaExiste) {
@@ -49,7 +48,6 @@ export function Home({ navigation }) {
           onChangeText={text => setSearch(text)}
         />
       </View>
-
       <ScrollView
         horizontal
         style={styles.horizontalScroll}
@@ -66,7 +64,6 @@ export function Home({ navigation }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
       <TouchableOpacity 
         style={styles.newResearchButton}
         onPress={() => navigation.navigate('NovaPesquisa')}
@@ -85,13 +82,12 @@ const styles = StyleSheet.create({
     minHeight: Dimensions.get('window').height,
   },
   inputText: {
-    marginTop: 10,
+    marginTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 5,
     height: 45,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   icon: {
     paddingHorizontal: 10
@@ -110,7 +106,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   cardWrapper: {
-    width: 170,
+    width: 200,
     height: 210,
     marginRight: 15,
   },

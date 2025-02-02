@@ -119,8 +119,7 @@ export function NovaPesquisa({ navigation }) {
       setDataError('');
     }
 
-    if (valid) {
-      console.log({ nome, data, imagemUri });
+    if (valid) {  
       const doc = {
         nome: nome,
         data: data,

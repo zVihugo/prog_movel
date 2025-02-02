@@ -20,14 +20,11 @@ export const getAllPesquisas = () => {
   return async dispatch => {
      try {
       const querySnapshot = await getDocs(query(collection(db, 'pesquisas'), orderBy('data', 'asc')));
-      let pesquisasList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      let pesquisasList = Array.from(new Map(querySnapshot.docs.map(doc => [doc.id, { id: doc.id, ...doc.data() }])).values());
       pesquisasList = pesquisasList.sort((a, b) => {
         const dateA = convertStringToDate(a.data);
         const dateB = convertStringToDate(b.data);
-        return dateA - dateB;
+        return dateB - dateA;
       });
       dispatch(addPesquisas(pesquisasList));
     } catch (error) {
@@ -41,9 +38,7 @@ export const addNewPesquisa = (novaPesquisa) => {
     try {
       const colecaoPesquisa = collection(db, 'pesquisas');
       const pesquisaRef = await addDoc(colecaoPesquisa, novaPesquisa);
-      
       const pesquisa = { id: pesquisaRef.id, ...novaPesquisa };
-
       dispatch(addPesquisa(pesquisa));
     } catch (error) {
       console.error('Erro ao adicionar as pesquisas:', error);

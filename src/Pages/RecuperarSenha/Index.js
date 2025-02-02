@@ -22,10 +22,8 @@ export function RecuperarSenha({navigation}) {
       setErrorMessage('');
       sendPasswordResetEmail(auth_mod, email)
       .then(() => {
-        console.log("E-mail enviado com sucesso!: ");
         navigation.navigate('Login');
       }).catch((error) => {
-        console.log("Erro ao enviar e-mail: " + JSON.stringify(error));
         if(error.code === 'auth/user-not-found'){
           setErrorMessage('Usuário não encontrado.');
         } else {

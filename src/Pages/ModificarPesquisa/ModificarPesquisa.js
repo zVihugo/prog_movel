@@ -37,7 +37,6 @@ export function ModificarPesquisa({ navigation, route }) {
 
   useEffect(() => {
     if (pesquisa === undefined) {
-      console.log('Erro ao carregar a pesquisa:');
       setLoading(false);
       return
     } 
