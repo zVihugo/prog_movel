@@ -26,11 +26,9 @@ export function NovaConta({ navigation }) {
     } else {
       setErrorMessage("");
       createUserWithEmailAndPassword(auth_mod, email, password)
-      .then((userCredential) => {
-        console.log("Usuário criado com sucesso: " + userCredential);
+      .then(() => {
         navigation.navigate("Login");
       }).catch((error) => {
-        console.log("Erro ao criar usuário: " + JSON.stringify(error));
         if(error.code === 'auth/email-already-in-use'){
           setErrorMessage('E-mail já cadastrado.');
         } else if (error.code === 'auth/weak-password'){

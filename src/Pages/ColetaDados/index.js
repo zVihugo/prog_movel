@@ -48,7 +48,6 @@ export function ColetaDados({ route, navigation }) {
 
       await updateDoc(pesquisaRef, { votos: votosAtualizados });
 
-      console.log(`Voto registrado: ${rating}`);
       setAvaliacao(rating);
       navigation.navigate("Agradecimento", { pesquisaId });
     } catch (error) {
@@ -58,7 +57,7 @@ export function ColetaDados({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>O que você achou da pesquisa: {nomePesquisa}</Text>
+      <Text style={styles.header}>O que você achou da pesquisa {nomePesquisa}</Text>
       <View style={styles.ratingContainer}>
         {['Péssimo', 'Ruim', 'Neutro', 'Bom', 'Excelente'].map((rating, index) => {
           const iconNames = {

@@ -40,12 +40,11 @@ export function Login({navigation}) {
     } else {
       setErrorMessage('');
       signInWithEmailAndPassword(auth_mod, email, password)
-      .then((userLogged) => {
-        console.log("Usuário autenticado com sucesso:  " + JSON.stringify(userLogged));
+      .then(() => {
         dispatch(addEmail(email));
         navigation.navigate('Drawer');
       }).catch((error) => {
-        console.log("Error: " + JSON.stringify(error));
+        console.error("Error: " + JSON.stringify(error));
         if(error.code === 'auth/user-not-found'){
           setErrorMessage('Usuário não encontrado.');
         } else if (error.code === 'auth/wrong-password'){
