@@ -1,95 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
-export function ColetaDados({ navigation }) {
+export function ColetaDados({ route, navigation }) {
+  const pesquisaId = route?.params?.pesquisaId;
+  const [nomePesquisa, setNomePesquisa] = useState('');
   const [avaliacao, setAvaliacao] = useState('');
 
-  const handleAvaliacao = (rating) => {
-    setAvaliacao(rating);
-  };
+  useEffect(() => {
+    const fetchPesquisaName = async () => {
+      if (!pesquisaId) return;
 
-  const handleAgradecimentoPage = () => {
-    navigation.navigate('Agradecimento');
+      try {
+        const pesquisaRef = doc(db, "pesquisas", pesquisaId);
+        const pesquisaSnap = await getDoc(pesquisaRef);
+
+        if (pesquisaSnap.exists()) {
+          const pesquisaData = pesquisaSnap.data();
+          setNomePesquisa(pesquisaData.nome);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar nome da pesquisa:", error);
+      }
+    };
+
+    fetchPesquisaName();
+  }, [pesquisaId]);
+
+  const handleAvaliacao = async (rating) => {
+    if (!pesquisaId) return;
+
+    try {
+      const pesquisaRef = doc(db, "pesquisas", pesquisaId);
+      const pesquisaSnap = await getDoc(pesquisaRef);
+
+      if (!pesquisaSnap.exists()) {
+        console.error("Erro: Pesquisa não encontrada no Firestore.");
+        return;
+      }
+
+      const pesquisaData = pesquisaSnap.data();
+      const votosAtualizados = { ...pesquisaData.votos } || {};
+
+      votosAtualizados[rating] = (votosAtualizados[rating] || 0) + 1;
+
+      await updateDoc(pesquisaRef, { votos: votosAtualizados });
+
+      console.log(`Voto registrado: ${rating}`);
+      setAvaliacao(rating);
+      navigation.navigate("Agradecimento", { pesquisaId });
+    } catch (error) {
+      console.error("Erro ao registrar voto:", error);
+    }
   };
 
   return (
     <View style={styles.container}>
-    
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.navigate("AcoesPesquisa")}
-      >
-  
-      </TouchableOpacity>
-
-      <Text style={styles.header}>O que você achou do Carnaval 2024?</Text>
+      <Text style={styles.header}>O que você achou da pesquisa: {nomePesquisa}</Text>
       <View style={styles.ratingContainer}>
-        <TouchableOpacity
-          style={[
-            styles.ratingButton,
-            avaliacao === 'Péssimo' && styles.selectedRating,
-          ]}
-          onPress={() => {
-            handleAvaliacao('Péssimo');
-            handleAgradecimentoPage();
-          }}
-        >
-          <Icon name="emoticon-sad-outline" size={65} color="#FF0000" />
-          <Text style={styles.ratingText}>Péssimo</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.ratingButton,
-            avaliacao === 'Ruim' && styles.selectedRating,
-          ]}
-          onPress={() => {
-            handleAvaliacao('Ruim');
-            handleAgradecimentoPage();
-          }}
-        >
-          <Icon name="emoticon-sad" size={65} color="#FF0000" />
-          <Text style={styles.ratingText}>Ruim</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.ratingButton,
-            avaliacao === 'Neutro' && styles.selectedRating,
-          ]}
-          onPress={() => {
-            handleAvaliacao('Neutro');
-            handleAgradecimentoPage();
-          }}
-        >
-          <Icon name="emoticon-neutral" size={65} color="#FFFF00" />
-          <Text style={styles.ratingText}>Neutro</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.ratingButton,
-            avaliacao === 'Bom' && styles.selectedRating,
-          ]}
-          onPress={() => {
-            handleAvaliacao('Bom');
-            handleAgradecimentoPage();
-          }}
-        >
-          <Icon name="emoticon-happy" size={65} color="#00FF00" />
-          <Text style={styles.ratingText}>Bom</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.ratingButton,
-            avaliacao === 'Excelente' && styles.selectedRating,
-          ]}
-          onPress={() => {
-            handleAvaliacao('Excelente');
-            handleAgradecimentoPage();
-          }}
-        >
-          <Icon name="emoticon-excited" size={65} color="#00FF00" />
-          <Text style={styles.ratingText}>Excelente</Text>
-        </TouchableOpacity>
+        {['Péssimo', 'Ruim', 'Neutro', 'Bom', 'Excelente'].map((rating, index) => {
+          const iconNames = {
+            'Péssimo': 'emoticon-sad-outline',
+            'Ruim': 'emoticon-sad',
+            'Neutro': 'emoticon-neutral',
+            'Bom': 'emoticon-happy',
+            'Excelente': 'emoticon-excited',
+          };
+
+          const colors = {
+            'Péssimo': '#FF0000',
+            'Ruim': '#FF4500',
+            'Neutro': '#FFD700',
+            'Bom': '#00FF00',
+            'Excelente': '#32CD32',
+          };
+
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[styles.ratingButton, avaliacao === rating && styles.selectedRating]}
+              onPress={() => handleAvaliacao(rating)}
+            >
+              <Icon name={iconNames[rating]} size={65} color={colors[rating]} />
+              <Text style={styles.ratingText}>{rating}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -97,25 +95,18 @@ export function ColetaDados({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 100,
     flex: 1,
     backgroundColor: '#372775',
     paddingTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    width: 50,
-    height: 50,
-  },
   header: {
     color: '#fff',
     fontSize: 27,
     paddingTop: 30,
     fontFamily: 'AveriaLibre-Bold',
+    textAlign: 'center',
   },
   ratingContainer: {
     paddingTop: 60,

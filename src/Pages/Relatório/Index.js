@@ -1,67 +1,67 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { PieChart } from 'react-native-svg-charts';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
-export function Relatorio() {
-    const staticData = [
-        { key: 1, name: 'Excelente', population: 40, color: '#FFD700' },
-        { key: 2, name: 'Bom', population: 30, color: '#4682B4' },
-        { key: 3, name: 'Neutro', population: 75, color: '#32CD32' },
-        { key: 4, name: 'Ruim', population: 10, color: '#FF6347' },
-        { key: 5, name: 'Péssimo', population: 5, color: '#40E0D0' },
-    ];
-
+export function Relatorio({ route }) {
+    const { pesquisaId } = route.params;
     const [data, setData] = useState([]);
     const screenWidth = Dimensions.get('window').width;
 
     useEffect(() => {
-        const processData = (data) => {
-            const totalPopulation = data.reduce((sum, item) => sum + item.population, 0);
+        const fetchVotos = async () => {
+            try {
+                const pesquisaRef = doc(db, 'pesquisas', pesquisaId);
+                const pesquisaSnap = await getDoc(pesquisaRef);
 
-            const proportionalData = data.map(item => ({
-                ...item,
-                value: (item.population / totalPopulation) * 100,
-            }));
-
-            const predominantItem = proportionalData.reduce((prev, current) => 
-                (prev.value > current.value) ? prev : current
-            );
-
-            const finalData = proportionalData.map(item => ({
-                ...item,
-                svg: {
-                    fill: item.color,
-                },
-                arc: {
-                    ...(item.key === predominantItem.key ? { outerRadius: '120%', cornerRadius: 10 } : {}), // Destaca a fatia predominante
+                if (pesquisaSnap.exists()) {
+                    const votos = pesquisaSnap.data().votos || {};
+                    const formattedData = Object.keys(votos).map((key) => ({
+                        value: votos[key], 
+                        svg: { fill: getColorForKey(key) },
+                        key: key, 
+                    }));
+                    setData(formattedData);
+                    console.log(formattedData); 
                 }
-            }));
-
-            return finalData;
+            } catch (error) {
+                console.error('Erro ao buscar votos:', error);
+            }
         };
 
-        const processedData = processData(staticData);
-        setData(processedData);
-    }, []);
+        fetchVotos();
+    }, [pesquisaId]);
+
+    const getColorForKey = (key) => {
+        const colors = {
+            'Excelente': '#F1CE7E',
+            'Bom': '#6994FE',
+            'Neutro': '#5FCDA4',
+            'Ruim': '#EA7288',
+            'Péssimo': '#53D8D8'
+        };
+        return colors[key] || '#ccc'; 
+    };
 
     return (
         <View style={styles.container}>
+            <Text style={styles.header}>Relatório da Pesquisa</Text>
             <View style={styles.row}>
                 <PieChart
                     style={{ height: 250, width: screenWidth * 0.5 }}
                     data={data}
-                    innerRadius={0} 
-                    outerRadius={'70%'} 
-                    padAngle={0.02} 
+                    innerRadius={0}
+                    outerRadius={'70%'}
+                    padAngle={0.02}
                 />
-
                 <View style={styles.legendContainer}>
                     {data.map((item, index) => (
                         <View key={index} style={styles.legendItem}>
                             <View
-                                style={[styles.legendColor, { backgroundColor: item.color }]}
+                                style={[styles.legendColor, { backgroundColor: item.svg.fill }]} 
                             />
-                            <Text style={styles.legendText}>{item.name}</Text>
+                            <Text style={styles.legendText}>{item.key}</Text>
                         </View>
                     ))}
                 </View>
@@ -77,6 +77,12 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    header: {
+        color: '#fff',
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 20,
     },
     row: {
         flexDirection: 'row',
@@ -101,6 +107,5 @@ const styles = StyleSheet.create({
     legendText: {
         color: '#FFF',
         fontSize: 18,
-        fontFamily: 'AveriaLibre-Regular',
     },
 });

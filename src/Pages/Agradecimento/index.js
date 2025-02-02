@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect } from "react";
 
-export function Agradecimento({ navigation }) {
+export function Agradecimento({ navigation, route }) {
+    const pesquisaId = route?.params?.pesquisaId;
     useEffect(() => {
         const mudar = setTimeout(() => {
-            navigation.navigate('ColetaDados');
+            navigation.navigate('ColetaDados', { pesquisaId });
         }, 3000)
 
         return () => clearTimeout(mudar)
