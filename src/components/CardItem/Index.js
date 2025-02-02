@@ -20,7 +20,7 @@ export function CardItem({ nome, date, image }) {
 
 const styles = StyleSheet.create({
   card: {
-    width: 150,  
+    width: 175,  
     height: 200, 
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -45,12 +45,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   nome: {
-    fontSize: 18, 
+    fontSize: 23, 
     fontFamily: 'AveriaLibre-Regular',
     color: '#3F92C5',
     textAlign: 'center',
     lineHeight: 22, 
-    maxHeight: 44,
+    width: 160
   },
   date: {
     fontSize: 14, 
