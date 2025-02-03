@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { 
   Dimensions, 
   ScrollView, 
@@ -7,6 +6,7 @@ import {
   TextInput, 
   TouchableOpacity, 
   View } from 'react-native';
+import { useState, useEffect } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Card } from '../../components/Card/Index';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,12 +14,23 @@ import { getAllPesquisas } from '../../store/fetchActions'
 
 export function Home({ navigation }) {
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState('');
   const pesquisas = useSelector((state) => state.pesquisas);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllPesquisas());
-  }, [dispatch]);
+    const fetchPesquisas = async () => {
+      setLoading(true);
+      try {
+        await dispatch(getAllPesquisas());
+      } catch (error) {
+        console.error('Erro ao carregar pesquisas', error);
+      } finally {
+        setLoading(false);
+      }
+     }
+    fetchPesquisas();
+  }, [dispatch]); 
 
   const filterPesquisa = pesquisas.filter(item => item.nome.toLowerCase().includes(search.toLowerCase()));
 
@@ -38,38 +49,46 @@ export function Home({ navigation }) {
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.inputText}>
-        <Icon style={styles.icon} name="search" color={'#8B8B8B'} size={25} />
-        <TextInput
-          style={styles.search}
-          placeholder="Insira o termo de busca..."
-          placeholderTextColor={'#8B8B8B'}
-          value={search}
-          onChangeText={text => setSearch(text)}
-        />
-      </View>
-      <ScrollView
-        horizontal
-        style={styles.horizontalScroll}
-        contentContainerStyle={styles.cardsContainer}
-        showsHorizontalScrollIndicator={false}
-      >
-        {filterPesquisa.map((pesquisa) => (
-          <TouchableOpacity
-            key={pesquisa.id} 
-            style={styles.cardWrapper}
-            onPress={() => handleCardPress(pesquisa.id, pesquisa.nome)}
+      {loading ? (
+        <View style={styles.containerLogin}>
+          <Text style={styles.loadingText}>Carregando pesquisas...</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.inputText}>
+            <Icon style={styles.icon} name="search" color={'#8B8B8B'} size={25} />
+            <TextInput
+              style={styles.search}
+              placeholder="Insira o termo de busca..."
+              placeholderTextColor={'#8B8B8B'}
+              value={search}
+              onChangeText={text => setSearch(text)}
+            />
+          </View>
+          <ScrollView
+            horizontal
+            style={styles.horizontalScroll}
+            contentContainerStyle={styles.cardsContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            <Card pesquisa={pesquisa} />
+            {filterPesquisa.map((pesquisa) => (
+              <TouchableOpacity
+                key={pesquisa.id} 
+                style={styles.cardWrapper}
+                onPress={() => handleCardPress(pesquisa.id, pesquisa.nome)}
+              >
+                <Card pesquisa={pesquisa} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity 
+            style={styles.newResearchButton}
+            onPress={() => navigation.navigate('NovaPesquisa')}
+          >
+            <Text style={styles.textButton}>NOVA PESQUISA</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
-      <TouchableOpacity 
-        style={styles.newResearchButton}
-        onPress={() => navigation.navigate('NovaPesquisa')}
-      >
-        <Text style={styles.textButton}>NOVA PESQUISA</Text>
-      </TouchableOpacity>
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -81,6 +100,17 @@ const styles = StyleSheet.create({
     padding: 20,
     minHeight: Dimensions.get('window').height,
   },
+  containerLogin: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    textAlign: 'center',
+    fontFamily: 'AveriaLibre-Regular',
+    fontSize: 30,
+    color: '#FFF'
+  },  
   inputText: {
     marginTop: 5,
     flexDirection: 'row',
