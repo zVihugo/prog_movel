@@ -10,7 +10,10 @@ export const updatePesquisa = createAction('UPDATE_PESQUISA');
 export default createReducer(INITIAL_STATE, (build) => {
   build
     .addCase(addPesquisa, (state, action) => {
-      state.push(action.payload);
+      const exists = state.some(pesquisa => pesquisa.id === action.payload.id);
+      if (!exists) {
+        state.push(action.payload);
+      }
     })
     .addCase(addPesquisas, (state, action) => {
       return action.payload;
