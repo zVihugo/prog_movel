@@ -44,15 +44,11 @@ export function Login({navigation}) {
         dispatch(addEmail(email));
         navigation.navigate('Drawer');
       }).catch((error) => {
-        console.error("Error: " + JSON.stringify(error));
-        if(error.code === 'auth/user-not-found'){
-          setErrorMessage('Usuário não encontrado.');
-        } else if (error.code === 'auth/wrong-password'){
-          setErrorMessage('Senha incorreta.');
-        } else {
-          setErrorMessage('Senha incorreta.');
-        }
-      })
+       console.log(error.code);
+        if(error.code === 'auth/invalid-credential'){
+          setErrorMessage('E-mail e/ou senha inválidos, tente novamente.');
+          }
+              })
     }
   };
 
